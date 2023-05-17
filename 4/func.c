@@ -9,25 +9,31 @@
 #define HUNGRYDELAY 500
 #define TRACKLEN 70
 
-typedef struct frogTag{
+struct frogTag{
 	POINT pos;
 };
-typedef struct stoneTag{
+struct stoneTag{
 	POINT pos;
 };
-typedef struct pythonTag {
+struct pythonTag {
 	int pythonLenght;
 	POINT pos;
 	struct pythonTag* next;
+};
+struct button {
+	int pythonLenght;
+	struct button* next;
+	struct button* prev;
 };
 struct stoneTag* sHead = NULL;
 struct pythonTag *pHead = NULL;
 struct frogTag* fHead = NULL;
 POINT track[TRACKLEN];
 HWND pWnd = NULL;
+HDC pHdc = NULL;
 int isPause = 1;
 int dir = 3;
-int speed =3;
+int speed =0;
 int spawnTimerFrog = SPAWNDELAY;
 int spawnTimerStone = SPAWNDELAY;
 int hungerTimer = 0;
@@ -37,6 +43,47 @@ void Lose() {
 }
 void Start() {
 	speed =3;
+}
+void DrawTextonButton() {
+	TCHAR* str = TEXT("Start");
+	HWND wnd = GetForegroundWindow();
+	HDC dc = GetDC(wnd);
+	RECT rc;
+	HFONT font = CreateFont(-50, 0, 0, 0, 0, 0u, 0U, 0U, ANSI_CHARSET, 0U, 0U, 0U, 0U, TEXT("Arial"));
+	HGDIOBJ old = SelectObject(dc, font);
+	GetClientRect(wnd, &rc);
+	rc.left = 700;
+	rc.top = 40;
+	SetBkMode(dc, TRANSPARENT);
+	SetTextColor(dc, 0xFFFFFFFF);
+	DrawText(dc, str, lstrlen(str), &rc, DT_CENTER);
+	str = TEXT("Exit");
+	rc.left = 700;
+	rc.top = 190;
+	DrawText(dc, str, lstrlen(str), &rc, DT_CENTER);
+	SelectObject(dc, old);
+	ReleaseDC(wnd, dc);
+	DeleteObject(font);
+	getchar();
+}
+void ChoseButton(int chose, HDC hdc) {
+	HBRUSH hWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+	HBRUSH hGreyBrush = CreateSolidBrush(RGB(150, 150, 150));
+	HPEN hBlackPen = CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+	SelectObject(hdc, hBlackPen);
+	if (chose) {
+		SelectObject(hdc, hGreyBrush);
+		Rectangle(hdc, 700, 0, 1000, 130);
+		SelectObject(hdc, hWhiteBrush);
+		Rectangle(hdc, 700, 150, 1000, 280);
+	}
+	else {
+		SelectObject(hdc, hWhiteBrush);
+		Rectangle(hdc, 700, 0, 1000, 130);
+		SelectObject(hdc, hGreyBrush);
+		Rectangle(hdc, 700, 150, 1000, 280);
+	}
+	DrawTextonButton();
 }
 void ChangeDirection(int direction) {
 	dir = direction;
@@ -183,7 +230,8 @@ void Draw(HDC hdc) {
 	DeleteObject(hBlackPen);
 }
 void Update(HDC hdc) {
-	Draw(hdc);
+	pHdc = hdc;
+	Draw(pHdc);
 	spawnTimerFrog++;
 	spawnTimerStone++;
 	hungerTimer++;
@@ -221,6 +269,6 @@ void Init(HWND hWnd) {
 	pWnd = hWnd;
 	pHead = (struct pythonTag*)malloc(sizeof(struct pythonTag));
 	pHead->next = NULL;
-	pHead->pos = (POINT){ 0, 0 };
+	pHead->pos = (POINT){ 350, 350 };
 	pHead->pythonLenght = 1;
 }
