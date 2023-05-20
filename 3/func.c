@@ -25,6 +25,29 @@ HBRUSH hbrush;
 struct Menu* menuHead = NULL;
 struct Menu* curB = NULL;
 
+
+void DrawMenu() {
+    struct Menu* cur = menuHead;
+    int fl = 0;
+    while (cur != NULL) {
+        HBRUSH hbrush = CreateSolidBrush(RGB(cur->wind->color[0], cur->wind->color[1], cur->wind->color[2]));
+        SelectObject(curHDC, hbrush);
+        if (!cur->isBut && !fl) {
+            Rectangle(curHDC, cur->wind->pos.x, cur->wind->pos.y, cur->wind->pos.x + wWidht, cur->wind->pos.y + wHeight);
+        }
+        else if (cur->isBut && fl) {
+            curB = cur;
+            Rectangle(curHDC, cur->wind->pos.x, cur->wind->pos.y, cur->wind->pos.x + bWidht, cur->wind->pos.y + bHeight);
+        }
+        if (cur->next == NULL && !cur->isBut && !fl) {
+            cur = menuHead;
+            fl++;
+        }
+        else {
+            cur = cur->next;
+        }
+    }
+}
 void SystemUpdate(int direction) {
     if (direction == 1) {
         if (curB->next->isBut) {
@@ -50,6 +73,7 @@ void SystemUpdate(int direction) {
         }
     }
     else if (direction == 0) {
+        DrawMenu();
         hbrush = CreateSolidBrush(RGB(curB->highlihtColor[0], curB->highlihtColor[1], curB->highlihtColor[2]));
         SelectObject(curHDC, hbrush);
         Rectangle(curHDC, curB->wind->pos.x, curB->wind->pos.y, curB->wind->pos.x + bWidht, curB->wind->pos.y + bHeight);
@@ -57,28 +81,6 @@ void SystemUpdate(int direction) {
     else {
         OutputDebugStringA(curB->name);
         OutputDebugStringA("\n");
-    }
-}
-void DrawMenu() {
-    struct Menu* cur = menuHead;
-    int fl = 0;
-    while (cur != NULL) {
-        HBRUSH hbrush = CreateSolidBrush(RGB(cur->wind->color[0], cur->wind->color[1], cur->wind->color[2]));
-        SelectObject(curHDC, hbrush);
-        if (!cur->isBut && !fl) {
-            Rectangle(curHDC, cur->wind->pos.x, cur->wind->pos.y, cur->wind->pos.x + wWidht, cur->wind->pos.y + wHeight);
-        }
-        else if (cur->isBut && fl) {
-            curB = cur;
-            Rectangle(curHDC, cur->wind->pos.x, cur->wind->pos.y, cur->wind->pos.x + bWidht, cur->wind->pos.y + bHeight);
-        }
-        if (cur->next == NULL && !cur->isBut && !fl) {
-            cur = menuHead;
-            fl++;
-        }
-        else {
-            cur = cur->next;
-        }
     }
 }
 void SystemOpen(HDC hdc) {
@@ -114,5 +116,4 @@ void SystemInitialise(fileName){
         sscanf(str, "\t\tHiglightColor=(%d,%d,%d)\n", &but->highlihtColor[0], &but->highlihtColor[1], &but->highlihtColor[2]);
         sscanf(str, "\t\tName=%50s\n", &but->name);
     }
-    DrawMenu();
 }
