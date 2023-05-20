@@ -77,7 +77,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      0, 0, 1000, 760, NULL, NULL, hInstance, NULL);
+      0, 0, 1000, 750, NULL, NULL, hInstance, NULL);
 
    OutputDebugStringW(L"Start");
    Init(hWnd);
